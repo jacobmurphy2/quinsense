@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dream K⁺atcher — Continuous K⁺ & Creatinine Monitoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--navy:#0D2340;--blue:#1A5EA8;--blue-mid:#2E7DD1;--blue-lt:#5BA3E8;--teal:#0E8A8A;--teal-lt:#D6F0F0;--bg:#F5F7FA;--white:#FFFFFF;--ink:#0A1628;--ink-mid:#3A4A5C;--ink-soft:#7A8A9C;--border:#DDE3EC;--nav-h:70px;--pad:clamp(64px,10vw,120px);--r:20px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+    a{color:inherit;text-decoration:none}ul{list-style:none}svg{display:block}
+    .serif{font-family:'Fraunces',serif}
+    h1{font-size:clamp(42px,5.8vw,86px);font-weight:300;line-height:1.06;letter-spacing:-0.025em}
+    h2{font-size:clamp(28px,3.5vw,52px);font-weight:300;line-height:1.1;letter-spacing:-0.02em}
+    h3{font-size:clamp(16px,1.5vw,20px);font-weight:500;line-height:1.3}
+    p{line-height:1.75;color:var(--ink-mid)}
+    .wrap{max-width:1160px;margin:0 auto;padding:0 clamp(20px,5vw,48px)}
+    section{padding:var(--pad) 0}
+    .tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);border-radius:100px;padding:4px 14px;margin-bottom:24px}
+    .tag-teal{color:var(--teal);border-color:var(--teal)}
+    .tag-inv{color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.15)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .22s ease;border:none;white-space:nowrap}
+    .btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:#0A1A30;transform:translateY(-2px);box-shadow:0 10px 28px rgba(13,35,64,.3)}
+    .btn-ghost{background:transparent;color:var(--navy);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:var(--navy);background:var(--navy);color:#fff}
+    .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#154D8C;transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,94,168,.3)}
+    .btn-lg{padding:17px 36px;font-size:15px}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:300;height:var(--nav-h);display:flex;align-items:center;background:rgba(245,247,250,.92);backdrop-filter:blur(20px) saturate(1.6);border-bottom:1px solid var(--border)}
+    nav.scrolled{box-shadow:0 4px 32px rgba(0,0,0,.07)}
+    .nav-inner{width:100%;max-width:1160px;margin:0 auto;padding:0 clamp(20px,5vw,48px);display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;letter-spacing:-0.02em}
+    .logo-mark{width:34px;height:34px;border-radius:9px;background:var(--navy);display:grid;place-items:center}
+    .nav-links{display:flex;align-items:center;gap:30px}
+    .nav-links a{font-size:13px;color:var(--ink-mid);transition:color .2s}.nav-links a:hover{color:var(--ink)}
+
+    /* HERO */
+    #hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--nav-h);position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(26,94,168,.12) 1px,transparent 1px);background-size:36px 36px;opacity:.6}
+    #hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:220px;background:linear-gradient(to top,var(--bg),transparent)}
+    .hero-layout{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative;z-index:1}
+    .hero-kicker{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:10px;margin-bottom:22px}
+    .hero-kicker::before{content:'';display:block;width:28px;height:1.5px;background:var(--blue)}
+    .hero-h1{margin-bottom:22px}
+    .hero-h1 em{font-style:italic;font-family:'Fraunces',serif;color:var(--blue)}
+    .hero-sub{font-size:17px;line-height:1.7;max-width:480px;margin-bottom:38px}
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+    .hero-stats{display:flex;gap:36px;margin-top:52px;padding-top:36px;border-top:1px solid var(--border);flex-wrap:wrap}
+    .hs-num{font-size:30px;font-weight:300;letter-spacing:-0.04em;color:var(--navy)}.hs-num span{color:var(--blue)}
+    .hs-lbl{font-size:11px;color:var(--ink-soft);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+    .hero-visual{position:relative;display:flex;align-items:center;justify-content:center}
+    .device-wrap{position:relative;width:460px;height:460px}
+    .dev-ring{position:absolute;border-radius:50%;border:1px solid rgba(26,94,168,.18)}
+    .r1{inset:0;animation:spin 36s linear infinite}.r2{inset:48px;border-style:dashed;border-color:rgba(26,94,168,.12);animation:spin 24s linear infinite reverse}
+    .r-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:0;left:50%;transform:translateX(-50%)}
+    .rd-blue{background:var(--blue);box-shadow:0 0 0 4px rgba(26,94,168,.2)}.rd-navy{background:var(--navy);top:auto;bottom:0;box-shadow:0 0 0 4px rgba(13,35,64,.2)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .patch-card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:210px;background:var(--white);border-radius:32px;border:1px solid var(--border);box-shadow:0 32px 80px rgba(13,35,64,.14);padding:22px 20px;text-align:center}
+    .patch-top{background:var(--navy);border-radius:20px;padding:16px 14px;margin-bottom:14px}
+    .pt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.pt-row:last-child{margin-bottom:0}
+    .pt-label{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+    .pt-label-k{color:#90C4FF}.pt-label-c{color:#7EE8D8}
+    .pt-val{font-size:22px;font-weight:300;letter-spacing:-0.04em}.pt-val-k{color:#fff}.pt-val-c{color:#7EE8D8}
+    .pt-unit{font-size:9px;color:#556;margin-top:1px}
+    .pt-div{border:none;border-top:1px solid #1e3050;margin:8px 0}
+    .pt-live{display:flex;align-items:center;justify-content:center;gap:6px;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#445}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:#22C55E;animation:blink 1.6s infinite}
+    @keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}60%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+    .patch-brand{font-size:12px;font-weight:600;letter-spacing:-.02em;color:var(--navy);margin-top:10px}
+    .patch-sub{font-size:9px;color:var(--ink-soft);margin-top:2px}
+    .float-chip{position:absolute;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:9px 15px;font-size:11px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.08);white-space:nowrap}
+    .fc-1{top:12%;left:-6%}.fc-2{bottom:16%;right:-5%}
+
+    /* PROBLEM */
+    #problem{background:var(--white)}
+    .problem-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+    .prob-text h2{margin-bottom:20px}.prob-text p{font-size:16px;margin-bottom:16px}
+    .stat-pills{display:flex;flex-direction:column;gap:14px;margin-top:28px}
+    .stat-pill{display:flex;align-items:center;gap:16px;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:16px 20px}
+    .sp-num{font-size:28px;font-weight:300;color:var(--navy);letter-spacing:-0.04em;min-width:90px}.sp-num span{color:var(--blue)}
+    .sp-text{font-size:13px;color:var(--ink-mid);line-height:1.5}
+    .burden-chain{display:flex;flex-direction:column;gap:0}
+    .burden-card{background:var(--navy);color:#fff;border-radius:18px;padding:24px 28px}
+    .bc-arrow{display:flex;justify-content:center;align-items:center;height:32px;color:var(--blue-lt)}
+    .bc-tag{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-lt);margin-bottom:8px}
+    .bc-title{font-size:16px;font-weight:500;margin-bottom:8px}
+    .bc-body{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6}
+
+    /* WHY NOW */
+    .wn-header{text-align:center;max-width:620px;margin:0 auto 72px}
+    .wn-header h2{margin-bottom:16px}
+    .wn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .wn-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:32px 28px;transition:box-shadow .28s,transform .28s}
+    .wn-card:hover{box-shadow:0 18px 50px rgba(13,35,64,.1);transform:translateY(-4px)}
+    .wn-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+    .wni-b{background:#EBF3FF}.wni-t{background:var(--teal-lt)}.wni-n{background:#E8EDF5}
+    .wn-num{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+    .wn-card h3{margin-bottom:10px}.wn-card p{font-size:13.5px;line-height:1.7}
+
+    /* SOLUTION */
+    #solution{background:var(--white)}
+    .sol-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+    .sol-text h2{margin-bottom:20px}.sol-text p{font-size:16px;margin-bottom:16px}
+    .sol-features{margin-top:28px;display:flex;flex-direction:column;gap:14px}
+    .sol-feat{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--bg);border-radius:14px;border:1px solid var(--border)}
+    .sf-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sfi-b{background:#EBF3FF}.sfi-t{background:var(--teal-lt)}
+    .sf-text h4{font-size:14px;font-weight:500;margin-bottom:3px}.sf-text p{font-size:13px;line-height:1.55}
+    .hw-step-wrap{display:flex;flex-direction:column}
+    .hw-line{display:flex;gap:0}
+    .hw-lw{display:flex;flex-direction:column;align-items:center}
+    .hw-num-c{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0}
+    .hw-conn{width:2px;flex:1;background:var(--border);margin:4px 0;min-height:28px}
+    .hw-cnt{padding:0 0 28px 16px}
+    .hw-cnt h4{font-size:15px;font-weight:500;margin-bottom:6px}.hw-cnt p{font-size:13px;line-height:1.6}
+    .hw-badge{display:inline-block;background:var(--navy);color:#7EE8D8;font-size:11px;font-weight:600;border-radius:8px;padding:4px 10px;margin-top:8px}
+
+    /* MARKET */
+    .mkt-header{max-width:600px;margin-bottom:64px}.mkt-header h2{margin-bottom:14px}
+    .mkt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .mkt-card{border-radius:var(--r);padding:36px 28px}
+    .mc-1{background:#EBF3FF;border:1px solid #C5DCFF}.mc-2{background:#D6E8F5;border:1px solid #AACDE8}.mc-3{background:var(--navy)}
+    .mkt-lbl{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+    .ml-1{color:var(--blue)}.ml-2{color:#1A6EA8}.ml-3{color:rgba(255,255,255,.5)}
+    .mkt-num{font-size:48px;font-weight:300;letter-spacing:-0.04em;margin-bottom:8px}
+    .mn-1{color:var(--navy)}.mn-2{color:var(--navy)}.mn-3{color:#fff}
+    .mkt-desc{font-size:13px;line-height:1.6}
+    .md-1,.md-2{color:var(--ink-mid)}.md-3{color:rgba(255,255,255,.6)}
+    .mkt-niche{margin-top:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:40px 48px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+    .mn-cell{text-align:center}
+    .mnc-val{font-size:44px;font-weight:300;letter-spacing:-0.04em;color:var(--navy)}.mnc-val span{color:var(--blue)}
+    .mnc-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:6px}
+    .mnc-sub{font-size:12px;color:var(--ink-mid);margin-top:8px;line-height:1.5}
+
+    /* COMPETITION */
+    #competition{background:var(--white)}
+    .comp-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+    .comp-matrix{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:16px;aspect-ratio:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px}
+    .quad{border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 12px;text-align:center}
+    .q-red{background:#FDECEA}.q-green{background:var(--navy)}
+    .q-name{font-size:13px;font-weight:600;margin-bottom:4px}.q-sub{font-size:10.5px;opacity:.7}
+    .ax-x{text-align:center;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);display:flex;justify-content:space-between;padding:0 8px}
+    .ax-yw{display:flex;flex-direction:column;align-items:center;margin-right:8px}
+    .ax-y{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+    .comp-mwrap{display:flex;gap:8px;align-items:center}
+    .comp-right h2{margin-bottom:20px}.comp-right p{font-size:15px;margin-bottom:20px}
+    .adv-list{display:flex;flex-direction:column;gap:12px}
+    .adv-item{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;background:var(--bg);border-radius:12px;border:1px solid var(--border)}
+    .adv-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);margin-top:6px;flex-shrink:0}
+    .adv-item p{font-size:13.5px}.adv-item strong{color:var(--navy)}
+
+    /* TEAM */
+    .team-header{margin-bottom:60px}.team-header h2{max-width:540px;margin-bottom:14px}
+    .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .team-card{border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:box-shadow .26s;background:var(--white)}
+    .team-card:hover{box-shadow:0 12px 36px rgba(13,35,64,.1)}
+    .team-photo{height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .team-info{padding:16px 18px 20px}
+    .team-name{font-size:15px;font-weight:600;margin-bottom:2px}
+    .team-role{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+    .team-extra{font-size:12px;color:var(--ink-mid);line-height:1.5}
+
+    /* FINANCIALS */
+    #financials{background:var(--white)}
+    .fin-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+    .fin-left h2{margin-bottom:20px}.fin-left p{font-size:15px;margin-bottom:24px}
+    .unit-econ{background:var(--bg);border:1px solid var(--border);border-radius:18px;padding:28px}
+    .ue-title{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:20px}
+    .ue-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+    .ue-row:last-child{border-bottom:none}
+    .ue-key{font-size:13.5px;color:var(--ink-mid)}.ue-val{font-size:14px;font-weight:600;color:var(--navy)}
+    .ue-hl{background:var(--navy);border-radius:10px;padding:14px 18px;margin-top:16px;display:flex;justify-content:space-between;align-items:center}
+    .ue-hk{font-size:12px;color:rgba(255,255,255,.6)}.ue-hv{font-size:20px;font-weight:300;color:#fff;letter-spacing:-0.03em}
+    .proj-table{width:100%;border-collapse:collapse;margin-top:8px}
+    .proj-table th{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding:10px 14px;text-align:left;border-bottom:2px solid var(--border)}
+    .proj-table td{padding:14px 14px;font-size:14px;border-bottom:1px solid var(--border)}
+    .proj-table tr:last-child td{border-bottom:none}
+    .yr{font-weight:600;color:var(--navy)}.pts{color:var(--ink-mid)}.profit{font-weight:600;color:var(--blue)}
+    .proj-table tr:last-child td{background:#EBF3FF}
+    .proj-table tr:last-child .profit{color:var(--navy);font-size:16px}
+
+    /* TIMELINE */
+    .tl-header{text-align:center;max-width:580px;margin:0 auto 72px}.tl-header h2{margin-bottom:14px}
+    .tl-track{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+    .tl-track::before{content:'';position:absolute;top:28px;left:14%;right:14%;height:2px;background:linear-gradient(to right,var(--blue),var(--navy));z-index:0}
+    .tl-col{position:relative;z-index:1;padding:0 10px}
+    .tl-dot-wrap{display:flex;justify-content:center;margin-bottom:20px}
+    .tl-dot{width:56px;height:56px;border-radius:50%;border:3px solid var(--white);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
+    .td-1{background:var(--blue-lt)}.td-2{background:var(--blue-mid)}.td-3{background:var(--blue)}.td-4{background:var(--navy)}
+    .tl-phase{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);text-align:center;margin-bottom:8px}
+    .tl-title{font-size:15px;font-weight:600;color:var(--navy);text-align:center;margin-bottom:6px}
+    .tl-dur{font-size:11px;color:var(--ink-soft);text-align:center;margin-bottom:14px}
+    .tl-bullets{font-size:12.5px;color:var(--ink-mid);line-height:1.65;display:flex;flex-direction:column;gap:6px}
+    .tl-b{display:flex;align-items:flex-start;gap:8px}.tl-b::before{content:'—';color:var(--blue);font-weight:600;flex-shrink:0}
+    .tl-ms{margin-top:16px;background:var(--navy);color:#fff;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;text-align:center}
+
+    /* INVESTOR */
+    #investor{background:var(--navy);position:relative;overflow:hidden}
+    #investor::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 80% 40%,rgba(26,94,168,.25),transparent),radial-gradient(ellipse 50% 50% at 10% 80%,rgba(14,138,138,.15),transparent);pointer-events:none}
+    .inv-layout{position:relative;z-index:1}
+    .inv-top{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;padding-bottom:64px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .inv-top h2{color:#fff;margin-bottom:18px}
+    .inv-lead{font-size:17px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:32px}
+    .ask-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px}
+    .ask-lbl{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:10px}
+    .ask-amt{font-size:52px;font-weight:300;color:#fff;letter-spacing:-0.04em;margin-bottom:4px}.ask-amt span{color:var(--blue-lt)}
+    .ask-eq{font-size:14px;color:rgba(255,255,255,.5)}
+    .ask-use{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+    .au-row{display:flex;align-items:center;gap:12px}
+    .au-dot{width:6px;height:6px;border-radius:50%;background:var(--blue-lt);flex-shrink:0}
+    .au-text{font-size:13.5px;color:rgba(255,255,255,.65)}
+    .inv-form{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:36px 32px}
+    .iff-title{font-size:18px;font-weight:500;color:#fff;margin-bottom:6px}
+    .iff-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px}
+    .f-row{margin-bottom:12px}
+    .f-field{width:100%;padding:13px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-family:'DM Sans',sans-serif;font-size:13.5px;outline:none;transition:border-color .2s}
+    .f-field::placeholder{color:rgba(255,255,255,.25)}.f-field:focus{border-color:var(--blue-lt)}
+    select.f-field{cursor:pointer}
+    .f-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .f-note{font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;text-align:center}
+    .f-success{display:none;color:#7EE8D8;font-size:13px;margin-top:10px;text-align:center}
+    .inv-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:48px;flex-wrap:wrap;gap:20px}
+    .inv-links{display:flex;gap:28px;flex-wrap:wrap}
+    .inv-link{font-size:13px;color:rgba(255,255,255,.25);transition:color .2s}.inv-link:hover{color:#fff}
+    .inv-copy{font-size:12px;color:rgba(255,255,255,.15)}
+
+    /* ANIMATIONS */
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){.hero-layout,.problem-layout,.sol-layout,.comp-layout,.fin-layout,.inv-top{grid-template-columns:1fr;gap:52px}.hero-visual{display:none}.wn-grid,.mkt-grid{grid-template-columns:1fr 1fr}.team-grid{grid-template-columns:repeat(4,1fr)}.tl-track{grid-template-columns:1fr 1fr;gap:24px}.tl-track::before{display:none}.mkt-niche{grid-template-columns:1fr 1fr}}
+    @media(max-width:720px){:root{--pad:60px}.wn-grid,.mkt-grid,.team-grid{grid-template-columns:1fr 1fr}.tl-track{grid-template-columns:1fr}.mkt-niche{grid-template-columns:1fr}.nav-links{display:none}.f-row-2{grid-template-columns:1fr}.inv-bottom{flex-direction:column;align-items:flex-start}}
+    @media(max-width:480px){.wn-grid,.mkt-grid,.team-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="logo">
+      <div class="logo-mark">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="white" stroke-width="1.4" fill="none"/>
+          <path d="M5 9 Q7 5 9 9 Q11 13 13 9" stroke="white" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      Dream K⁺atcher
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#market">Market</a>
+      <a href="#team">Team</a>
+      <a href="#investor" class="btn btn-navy" style="padding:9px 22px;font-size:13px;">Investor Info</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ════════════════ HERO ════════════════ -->
+<section id="hero">
+  <div class="wrap">
+    <div class="hero-layout">
+      <div>
+        <div class="hero-kicker">Continuous Kidney Biomarker Monitoring</div>
+        <h1 class="hero-h1">The first patch<br>to catch K⁺ &<br><em class="serif">creatinine live.</em></h1>
+        <p class="hero-sub">Dream K⁺atcher is a wearable, continuous biomarker patch that tracks <strong>interstitial potassium and creatinine</strong> in real time — predicting dialysis needs before a crisis hits.</p>
+        <div class="hero-btns">
+          <a href="#investor" class="btn btn-navy btn-lg">Request Investor Deck</a>
+          <a href="#solution" class="btn btn-ghost btn-lg">See the Science</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="hs-num">850<span>M</span></div><div class="hs-lbl">CKD patients worldwide</div></div>
+          <div><div class="hs-num">$45<span>B</span></div><div class="hs-lbl">Medicare ESRD spend/yr</div></div>
+          <div><div class="hs-num">1.7<span>×</span></div><div class="hs-lbl">Hospitalizations/patient/yr</div></div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="device-wrap">
+          <div class="dev-ring r1"><div class="r-dot rd-blue"></div></div>
+          <div class="dev-ring r2"><div class="r-dot rd-navy"></div></div>
+          <div class="patch-card">
+            <div class="patch-top">
+              <div class="pt-row">
+                <div><div class="pt-label pt-label-k">K⁺ Potassium</div><div class="pt-val pt-val-k">4.2</div><div class="pt-unit">mEq/L · normal</div></div>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#90C4FF" stroke-width="1.2" fill="none"/><path d="M6 14 Q9 8 11 14 Q13 20 15 14 Q17 8 19 14 Q21 18 22 14" stroke="#90C4FF" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+              </div>
+              <div class="pt-div"></div>
+              <div class="pt-row">
+                <div><div class="pt-label pt-label-c">Creatinine</div><div class="pt-val pt-val-c">1.1</div><div class="pt-unit">mg/dL · stable</div></div>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#7EE8D8" stroke-width="1.2" fill="none"/><path d="M7 18 C9 12 11 10 14 12 C17 14 19 8 21 12" stroke="#7EE8D8" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+              </div>
+              <div class="pt-div" style="margin-top:8px;"></div>
+              <div class="pt-live"><div class="live-dot"></div><span>LIVE · MICRONEEDLE ISF</span></div>
+            </div>
+            <div class="patch-brand">Dream K⁺atcher</div>
+            <div class="patch-sub">7-Day Biomarker Patch</div>
+          </div>
+          <div class="float-chip fc-1">⚠️ Hyperkalemia alert: off</div>
+          <div class="float-chip fc-2">📊 Dialysis score: 3/10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ PROBLEM ════════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="problem-layout">
+      <div class="prob-text reveal">
+        <div class="tag">The Problem</div>
+        <h2>Dialysis is reactive. Patients pay the price.</h2>
+        <p>Chronic Kidney Disease silently progresses until the kidneys fail. At End-Stage Renal Disease, patients depend on dialysis to survive — but dialysis timing today is based on scheduled appointments, not real physiological need.</p>
+        <p>Dangerous electrolyte swings go undetected between clinic visits. Hyperkalemia — dangerously high potassium — is a leading cause of sudden cardiac death in dialysis patients, and it's largely preventable with earlier detection.</p>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="sp-num">$45<span>B</span></div>
+            <div class="sp-text">Spent annually by Medicare on ESRD care — one of the costliest single diagnoses in US healthcare.</div>
+          </div>
+          <div class="stat-pill">
+            <div class="sp-num">1.7<span>×</span></div>
+            <div class="sp-text">Average hospitalizations per dialysis patient per year — most driven by missed early warning signs like rising K⁺.</div>
+          </div>
+          <div class="stat-pill">
+            <div class="sp-num">50<span>M+</span></div>
+            <div class="sp-text">Clinical renal function tests ordered annually — snapshot data with no continuous monitoring standard in existence.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="burden-chain reveal d2">
+        <div class="burden-card" style="border-radius:18px 18px 0 0;">
+          <div class="bc-tag">01 · Root Cause</div>
+          <div class="bc-title">No Real-Time Monitoring</div>
+          <div class="bc-body">Dialysis is scheduled on a fixed calendar, not physiologically timed. No wearable device exists to continuously track kidney-specific biomarkers between sessions.</div>
+        </div>
+        <div class="bc-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="burden-card" style="background:#1A3A6A;border-radius:0;">
+          <div class="bc-tag">02 · Consequence</div>
+          <div class="bc-title">In-Clinic Dependence</div>
+          <div class="bc-body">Patients attend 156+ clinic visits per year. Without home monitoring, any physiological change goes undetected until the next appointment.</div>
+        </div>
+        <div class="bc-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="burden-card" style="border-radius:0 0 18px 18px;">
+          <div class="bc-tag">03 · Outcome</div>
+          <div class="bc-title">Poor Quality of Life & Emergency Admissions</div>
+          <div class="bc-body">Loss of autonomy, emergency hyperkalemia admissions, and $10–20k hospitalization costs that are largely preventable with earlier intervention.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ WHY NOW ════════════════ -->
+<section id="whynow">
+  <div class="wrap">
+    <div class="wn-header reveal">
+      <div class="tag">Why Now?</div>
+      <h2>Three technology waves converging at once.</h2>
+      <p>Each breakthrough was necessary but insufficient alone. Together, they make the Dream K⁺atcher technically feasible for the first time.</p>
+    </div>
+    <div class="wn-grid">
+      <div class="wn-card reveal">
+        <div class="wn-icon wni-n">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 3L22 8V18L13 23L4 18V8L13 3Z" stroke="#0D2340" stroke-width="1.8" fill="none"/><circle cx="13" cy="13" r="3" fill="#0D2340"/></svg>
+        </div>
+        <div class="wn-num">01</div>
+        <h3>Advances in Microneedle Fabrication</h3>
+        <p>Next-generation microneedle arrays enable <strong>safer, minimally invasive continuous interstitial fluid sampling</strong> — accessing ISF without the discomfort or infection risk of traditional needles.</p>
+      </div>
+      <div class="wn-card reveal d1">
+        <div class="wn-icon wni-b">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="14" width="4" height="8" rx="2" fill="#1A5EA8"/><rect x="11" y="9" width="4" height="13" rx="2" fill="#2E7DD1"/><rect x="18" y="4" width="4" height="18" rx="2" fill="#5BA3E8"/></svg>
+        </div>
+        <div class="wn-num">02</div>
+        <h3>Stability Improvements in Aptamer Usage</h3>
+        <p>Engineered aptamers now provide <strong>stable, selective sensors for creatinine over multiple days</strong> — a critical bottleneck that prevented prior attempts at continuous renal monitoring.</p>
+      </div>
+      <div class="wn-card reveal d2">
+        <div class="wn-icon wni-t">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#0E8A8A" stroke-width="1.6" fill="none"/><path d="M8 13 Q10 8 12 13 Q14 18 16 13 Q18 9 20 13" stroke="#0E8A8A" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+        </div>
+        <div class="wn-num">03</div>
+        <h3>Major Growth in AI Data Processing</h3>
+        <p>Real-time edge AI and predictive analytics now allow <strong>trend analysis and actionable alerts</strong> — transforming raw electrochemical signals into clinically meaningful recommendations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ SOLUTION ════════════════ -->
+<section id="solution">
+  <div class="wrap">
+    <div class="sol-layout">
+
+      <div class="reveal">
+        <div class="tag">How It Works</div>
+        <div class="hw-step-wrap">
+
+          <div class="hw-line">
+            <div class="hw-lw"><div class="hw-num-c" style="background:var(--blue-lt);">1</div><div class="hw-conn"></div></div>
+            <div class="hw-cnt"><h4>Microneedle array samples interstitial fluid</h4><p>The flexible patch deploys a painless microneedle array, penetrating only the epidermis to draw trace ISF continuously to the dual-electrode sensor surface.</p><span class="hw-badge">K⁺ ion-selective electrode + Cre aptamer electrode</span></div>
+          </div>
+
+          <div class="hw-line">
+            <div class="hw-lw"><div class="hw-num-c" style="background:var(--blue-mid);">2</div><div class="hw-conn"></div></div>
+            <div class="hw-cnt"><h4>SWV signals → calibrated concentrations</h4><p>Square wave voltammetry generates analyte-specific current peaks. Preloaded calibration curves convert raw signal to K⁺ (mEq/L) and creatinine (mg/dL) in under 10 seconds.</p><span class="hw-badge">Dual analyte · single microfilament · ±5% serum accuracy</span></div>
+          </div>
+
+          <div class="hw-line">
+            <div class="hw-lw"><div class="hw-num-c" style="background:var(--blue);">3</div><div class="hw-conn"></div></div>
+            <div class="hw-cnt"><h4>BLE transmission to RenalSense app</h4><p>Calibrated readings stream continuously to patient and clinician dashboards via Bluetooth. Trend graphs and time-in-range analytics update in real time.</p><span class="hw-badge">iOS + Android · HIPAA-compliant cloud</span></div>
+          </div>
+
+          <div class="hw-line">
+            <div class="hw-lw"><div class="hw-num-c" style="background:var(--navy);">4</div></div>
+            <div class="hw-cnt"><h4>Predictive dialysis timing alert</h4><p>ML algorithms analyze multi-day K⁺ and creatinine trajectories. When threshold trends are detected, the system alerts patient and care team — enabling proactive, personalized dialysis scheduling.</p><span class="hw-badge">7-day device life · predictive alert engine</span></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="sol-text reveal d2">
+        <div class="tag">Our Solution</div>
+        <h2>The Dream K⁺atcher.</h2>
+        <p>A wearable, continuous biomarker patch that tracks kidney function and predicts dialysis needs in real time. The first device to place both a potassium ion-selective electrode and a creatinine aptamer sensor on a single dual-analyte microfilament.</p>
+        <div class="sol-features">
+          <div class="sol-feat">
+            <div class="sf-icon sfi-b"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10 Q5 5 7 10 Q9 15 11 10 Q13 5 15 10 Q17 13 18 10" stroke="#1A5EA8" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div>
+            <div class="sf-text"><h4>Dual-analyte: K⁺ & Creatinine simultaneously</h4><p>No competitor offers continuous real-time tracking of both kidney biomarkers on a single wearable sensor.</p></div>
+          </div>
+          <div class="sol-feat">
+            <div class="sf-icon sfi-t"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L17 6V14L10 18L3 14V6L10 2Z" stroke="#0E8A8A" stroke-width="1.6" fill="none"/><path d="M7 10L9.5 12.5L13.5 8" stroke="#0E8A8A" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="sf-text"><h4>Predictive dialysis timing alerts</h4><p>Trend-based ML flags hyperkalemia risk and dialysis windows hours before clinical thresholds are breached.</p></div>
+          </div>
+          <div class="sol-feat">
+            <div class="sf-icon sfi-b"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="11" rx="3" stroke="#1A5EA8" stroke-width="1.6" fill="none"/><path d="M7 10h6M10 7v6" stroke="#1A5EA8" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+            <div class="sf-text"><h4>Clinician + patient RenalSense app</h4><p>HIPAA-compliant dashboards with separate patient and clinician views, trend graphs, and secure messaging.</p></div>
+          </div>
+          <div class="sol-feat">
+            <div class="sf-icon sfi-t"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#0E8A8A" stroke-width="1.6" fill="none"/><path d="M10 6v4l3 2" stroke="#0E8A8A" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+            <div class="sf-text"><h4>7-day continuous wear</h4><p>Single patch with ±5% serum accuracy and &lt;10 second signal processing latency. IP68 water resistant.</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ MARKET ════════════════ -->
+<section id="market">
+  <div class="wrap">
+    <div class="mkt-header reveal">
+      <div class="tag">Market Opportunity</div>
+      <h2>A large, underserved, and measurable market.</h2>
+      <p>CKD affects 1 in 7 US adults. We enter at the most acute, highest-value segment and expand outward.</p>
+    </div>
+    <div class="mkt-grid">
+      <div class="mkt-card mc-1 reveal">
+        <div class="mkt-lbl ml-1">Total Available Market</div>
+        <div class="mkt-num mn-1">35.5<span style="font-size:28px;color:var(--blue);">M</span></div>
+        <div class="mkt-desc md-1">Patients with CKD in the US. The broadest eligible population for kidney-specific biomarker monitoring.</div>
+      </div>
+      <div class="mkt-card mc-2 reveal d1">
+        <div class="mkt-lbl ml-2">Serviceable Available Market</div>
+        <div class="mkt-num mn-2">808<span style="font-size:28px;color:#1A6EA8;">K</span></div>
+        <div class="mkt-desc md-2">Patients with ESRD in the US — actively managed, highest clinical need, strongest reimbursement pathway.</div>
+      </div>
+      <div class="mkt-card mc-3 reveal d2">
+        <div class="mkt-lbl ml-3">Initial Target Market</div>
+        <div class="mkt-num mn-3">660<span style="font-size:28px;color:var(--blue-lt);">K</span></div>
+        <div class="mkt-desc md-3">Patients on dialysis in the US — highest K⁺ volatility, greatest need for continuous monitoring, our beachhead.</div>
+      </div>
+    </div>
+    <div class="mkt-niche reveal">
+      <div class="mn-cell">
+        <div class="mnc-val">~3<span>M</span></div>
+        <div class="mnc-lbl">Actively monitored CKD/ESRD patients</div>
+        <div class="mnc-sub">Receiving regular renal monitoring today — but none continuously.</div>
+      </div>
+      <div class="mn-cell" style="border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 40px;">
+        <div class="mnc-val">50<span>M+</span></div>
+        <div class="mnc-lbl">Clinical renal tests ordered annually</div>
+        <div class="mnc-sub">High volume of point-in-time snapshots — no continuous standard exists.</div>
+      </div>
+      <div class="mn-cell">
+        <div class="mnc-val">1.7<span>×</span></div>
+        <div class="mnc-lbl">Hospitalizations per dialysis patient/yr</div>
+        <div class="mnc-sub">Most driven by missed early warning signs — the exact problem we solve.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ COMPETITION ════════════════ -->
+<section id="competition">
+  <div class="wrap">
+    <div class="comp-layout">
+
+      <div class="reveal">
+        <div class="tag">Competitive Landscape</div>
+        <div style="margin-top:8px;">
+          <div style="text-align:right;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px;padding-right:8px;">Kidney-Specific</div>
+          <div class="comp-mwrap">
+            <div class="ax-yw"><div class="ax-y">Continuous ← → One-Time</div></div>
+            <div style="flex:1;">
+              <div class="comp-matrix">
+                <div class="quad q-red"><div class="q-name" style="color:#C0392B;">Abbott i-STAT</div><div class="q-sub" style="color:#888;">Kidney-specific, one-time</div></div>
+                <div class="quad q-green"><div class="q-name" style="color:#7EE8D8;font-size:15px;">Dream K⁺atcher</div><div class="q-sub" style="color:rgba(255,255,255,.5);">Kidney-specific · continuous</div><div style="margin-top:10px;width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.2);"></div></div>
+                <div class="quad q-red"><div class="q-name" style="color:#C0392B;">Dipstick Urinalysis</div><div class="q-sub" style="color:#888;">Non-specific, one-time</div></div>
+                <div class="quad q-red"><div class="q-name" style="color:#C0392B;">Dexcom G7</div><div class="q-sub" style="color:#888;">Continuous, non-kidney biomarker</div></div>
+              </div>
+              <div class="ax-x"><span>One-Time</span><span>Continuous</span></div>
+            </div>
+          </div>
+          <div style="text-align:right;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;padding-right:8px;">Non-Kidney-Specific</div>
+        </div>
+      </div>
+
+      <div class="comp-right reveal d2">
+        <h2>No true competitor exists.</h2>
+        <p>Every current option is either kidney-specific but snapshot, or continuous but non-kidney. Dream K⁺atcher is the only device in the green quadrant.</p>
+        <div class="adv-list">
+          <div class="adv-item"><div class="adv-dot"></div><p><strong>Continuous monitoring of both potassium and creatinine</strong> — no device today offers real-time tracking of either kidney biomarker at home.</p></div>
+          <div class="adv-item"><div class="adv-dot"></div><p><strong>Dual electrodes on a single microfilament</strong> — core patented innovation enabling simultaneous multi-analyte detection without increased device complexity.</p></div>
+          <div class="adv-item"><div class="adv-dot"></div><p><strong>Earlier, more accurate clinical alerts</strong> — correlating both biomarkers creates a composite kidney function signal no single-analyte device can produce.</p></div>
+          <div class="adv-item"><div class="adv-dot"></div><p><strong>Dexcom-validated market playbook</strong> — the CGM category proved reimbursement and adoption. We apply it to a higher-acuity, more captive patient population.</p></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ TEAM ════════════════ -->
+<section id="team">
+  <div class="wrap">
+    <div class="team-header reveal">
+      <div class="tag">The Team</div>
+      <h2>Seven specialists. One mission.</h2>
+      <p>Cross-functional founding team spanning bioelectronics, mechanical design, clinical integration, software, compliance, and finance — led by Evan Park.</p>
+    </div>
+    <div class="team-grid">
+
+      <div class="team-card reveal">
+        <div class="team-photo" style="background:linear-gradient(135deg,#EBF3FF,#C0DAFF);">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#1A5EA8" opacity=".3"/><circle cx="30" cy="22" r="7" fill="#1A5EA8" opacity=".6"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#1A5EA8" opacity=".2"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#1A5EA8">EP</text></svg>
+        </div>
+        <div class="team-info">
+          <div class="team-name">Evan Park</div>
+          <div class="team-role">Managing Director</div>
+          <div class="team-extra">Team lead & vision. Investor relations and cross-functional coordination.</div>
+        </div>
+      </div>
+
+      <div class="team-card reveal d1">
+        <div class="team-photo" style="background:linear-gradient(135deg,#E0FAF7,#A0E8DE);">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#0E8A8A" opacity=".3"/><circle cx="30" cy="22" r="7" fill="#0E8A8A" opacity=".6"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#0E8A8A" opacity=".2"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#0E8A8A">JM</text></svg>
+        </div>
+        <div class="team-info">
+          <div class="team-name">Jacob Murphy</div>
+          <div class="team-role">Bioelectronic Systems</div>
+          <div class="team-extra">Electrode design, SWV sensing, and on-board signal processing architecture.</div>
+        </div>
+      </div>
+
+      <div class="team-card reveal d2">
+        <div class="team-photo" style="background:linear-gradient(135deg,#EBF3FF,#C0DAFF);">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#1A5EA8" opacity=".25"/><circle cx="30" cy="22" r="7" fill="#1A5EA8" opacity=".5"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#1A5EA8" opacity=".18"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#1A5EA8">AW</text></svg>
+        </div>
+        <div class="team-info">
+          <div class="team-name">Ashley Wang</div>
+          <div class="team-role">Mechanical Systems</div>
+          <div class="team-extra">Device casing, microfilament integration, and wearable form factor design.</div>
+        </div>
+      </div>
+
+      <div class="team-card reveal d3">
+        <div class="team-photo" style="background:linear-gradient(135deg,#EEF5E0,#C8EDAA);">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#3A8A1A" opacity=".25"/><circle cx="30" cy="22" r="7" fill="#3A8A1A" opacity=".5"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#3A8A1A" opacity=".18"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#3A8A1A">AN</text></svg>
+        </div>
+        <div class="team-info">
+          <div class="team-name">Andrea Nguyen</div>
+          <div class="team-role">Software Lead</div>
+          <div class="team-extra">RenalSense app, BLE firmware, and HIPAA-compliant cloud data pipeline.</div>
+        </div>
+      </div>
+
+      <div class="team-card reveal">
+        <div class="team-photo" style="background:linear-gradient(135deg,#FFF0E0,#FFCF99);">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#C06010" opacity=".25"/><circle cx="30" cy="22" r="7" fill="#C06010" opacity=".5"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#C06010" opacity=".18"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#C06010">JD</text></svg>
+        </div>
+        <div class="team-info">
+          <div class="team-name">Jason Deng</div>
+          <div class="team-role">Clinical Integration</div>
+          <div class="team-extra">Clinical validation strategy, hospital partnerships, and physician advisory network.</div>
+        </div>
+      </div>
+
+      <div class="team-card reveal d1">
+        <div class="team-photo" style="background:linear-gradient(135deg,#F0E8FF,#CCAAFF);">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#6020C0" opacity=".25"/><circle cx="30" cy="22" r="7" fill="#6020C0" opacity=".5"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#6020C0" opacity=".18"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#6020C0">BB</text></svg>
+        </div>
+        <div class="team-info">
+          <div class="team-name">Blake Brown</div>
+          <div class="team-role">External Finances</div>
+          <div class="team-extra">Financial modeling, unit economics, rNPV valuation, and investor materials.</div>
+        </div>
+      </div>
+
+      <div class="team-card reveal d2" style="grid-column:span 2;">
+        <div style="display:flex;align-items:center;">
+          <div class="team-photo" style="background:linear-gradient(135deg,#EBF3FF,#B0CEFF);min-width:150px;height:150px;">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="22" r="13" fill="#1A5EA8" opacity=".3"/><circle cx="30" cy="22" r="7" fill="#1A5EA8" opacity=".6"/><ellipse cx="30" cy="52" rx="20" ry="12" fill="#1A5EA8" opacity=".2"/><text x="30" y="27" text-anchor="middle" font-family="Fraunces,serif" font-size="12" font-style="italic" fill="#1A5EA8">AM</text></svg>
+          </div>
+          <div class="team-info" style="padding:20px 24px;">
+            <div class="team-name">Alan Motoki</div>
+            <div class="team-role">Product Strategy & Compliance</div>
+            <div class="team-extra">FDA regulatory pathway (510(k)/De Novo), IP strategy, and go-to-market planning for dialysis center launch.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ FINANCIALS ════════════════ -->
+<section id="financials">
+  <div class="wrap">
+    <div class="fin-layout">
+
+      <div class="fin-left reveal">
+        <div class="tag">Unit Economics</div>
+        <h2>Strong margins justified by clinical value.</h2>
+        <p>At a $175 selling price, each patch prevents a hospitalization worth $10–20k — making the cost-effectiveness case straightforward for payors and patients.</p>
+        <div class="unit-econ">
+          <div class="ue-title">Per-Device Economics</div>
+          <div class="ue-row"><span class="ue-key">Bill of Materials (BOM)</span><span class="ue-val">$21.09</span></div>
+          <div class="ue-row"><span class="ue-key">Manufacturing (assembly, QA, packaging)</span><span class="ue-val">$40.00</span></div>
+          <div class="ue-row"><span class="ue-key">Total COGS</span><span class="ue-val">$61.09</span></div>
+          <div class="ue-row"><span class="ue-key">Selling Price</span><span class="ue-val">$175.00</span></div>
+          <div class="ue-hl"><span class="ue-hk">Gross Margin</span><span class="ue-hv">~65%</span></div>
+        </div>
+      </div>
+
+      <div class="reveal d2">
+        <div class="tag" style="background:var(--navy);color:#fff;border-color:var(--navy);">Revenue Projections</div>
+        <h2 style="margin-bottom:16px;">Annualized gross profit model.</h2>
+        <p style="margin-bottom:24px;font-size:15px;">$5,923 annual gross profit per patient (52 patches/year × $113.91 margin). Sequential dialysis center rollout following FDA clearance.</p>
+        <table class="proj-table">
+          <thead><tr><th>Year</th><th>Patients</th><th>Gross Profit</th></tr></thead>
+          <tbody>
+            <tr><td class="yr">Y1</td><td class="pts">50,000</td><td class="profit">$296M</td></tr>
+            <tr><td class="yr">Y3</td><td class="pts">100,000</td><td class="profit">$592M</td></tr>
+            <tr><td class="yr">Y5</td><td class="pts">200,000</td><td class="profit">$1.18B</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:20px;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:18px 20px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;">Company Valuation (rNPV)</div>
+          <div style="font-size:32px;font-weight:300;color:var(--navy);letter-spacing:-0.04em;">$2.5M <span style="font-size:14px;color:var(--ink-soft);font-weight:400;">pre-money</span></div>
+          <div style="font-size:12.5px;color:var(--ink-mid);margin-top:6px;line-height:1.55;">Risk-adjusted NPV: $26M peak revenue, 15% success probability at pre-FDA prototype stage, discounted at 30%.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ TIMELINE ════════════════ -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="tl-header reveal">
+      <div class="tag">Development Roadmap</div>
+      <h2>Four phases. Four milestones.</h2>
+      <p>From working prototype to commercial dialysis center launch, backed by a clear FDA regulatory pathway.</p>
+    </div>
+    <div class="tl-track">
+
+      <div class="tl-col reveal">
+        <div class="tl-dot-wrap"><div class="tl-dot td-1">1</div></div>
+        <div class="tl-phase">Phase 1</div>
+        <div class="tl-title">Prototype & Analytical Validation</div>
+        <div class="tl-dur">~1 Year · <strong>Seeking $750k now</strong></div>
+        <div class="tl-bullets">
+          <div class="tl-b">Finalize wearable architecture</div>
+          <div class="tl-b">Bench validation vs lab standards</div>
+          <div class="tl-b">Biocompatibility & safety testing</div>
+          <div class="tl-b">File core IP</div>
+          <div class="tl-b">Generate calibration curves</div>
+        </div>
+        <div class="tl-ms">🏁 Working Prototype</div>
+      </div>
+
+      <div class="tl-col reveal d1">
+        <div class="tl-dot-wrap"><div class="tl-dot td-2">2</div></div>
+        <div class="tl-phase">Phase 2</div>
+        <div class="tl-title">Pre-Clinical Feasibility</div>
+        <div class="tl-dur">~2 Years</div>
+        <div class="tl-bullets">
+          <div class="tl-b">ISF–serum correlation validation</div>
+          <div class="tl-b">Mouse/rat in-vivo pilot</div>
+          <div class="tl-b">Alert algorithm refinement</div>
+          <div class="tl-b">FDA Pre-Sub meeting</div>
+        </div>
+        <div class="tl-ms">🏁 Demonstrated Accuracy</div>
+      </div>
+
+      <div class="tl-col reveal d2">
+        <div class="tl-dot-wrap"><div class="tl-dot td-3">3</div></div>
+        <div class="tl-phase">Phase 3</div>
+        <div class="tl-title">Clinical Trials & Regulatory</div>
+        <div class="tl-dur">~1 Year</div>
+        <div class="tl-bullets">
+          <div class="tl-b">30–50 patient pilot study</div>
+          <div class="tl-b">Multicenter expansion</div>
+          <div class="tl-b">Safety & performance endpoints</div>
+          <div class="tl-b">510(k) submission</div>
+        </div>
+        <div class="tl-ms">🏁 FDA Clearance</div>
+      </div>
+
+      <div class="tl-col reveal d3">
+        <div class="tl-dot-wrap"><div class="tl-dot td-4">4</div></div>
+        <div class="tl-phase">Phase 4</div>
+        <div class="tl-title">Commercial Launch</div>
+        <div class="tl-dur">~18 Months</div>
+        <div class="tl-bullets">
+          <div class="tl-b">Launch in dialysis centers</div>
+          <div class="tl-b">Manufacturing scale-up</div>
+          <div class="tl-b">Reimbursement execution</div>
+          <div class="tl-b">Sales expansion</div>
+        </div>
+        <div class="tl-ms" style="background:var(--blue);">🚀 Market Launch</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ INVESTOR / CONTACT ════════════════ -->
+<section id="investor">
+  <div class="wrap inv-layout">
+    <div class="inv-top">
+
+      <div class="reveal">
+        <div class="tag tag-inv">Seed Round · Phase 1</div>
+        <h2>We're raising $750k to build the first working prototype.</h2>
+        <p class="inv-lead">Phase 1 funding to develop, bench-validate, and file IP on the first dual-analyte microneedle sensor for continuous potassium and creatinine monitoring.</p>
+        <div class="ask-box">
+          <div class="ask-lbl">Seed Ask</div>
+          <div class="ask-amt">$750<span>k</span></div>
+          <div class="ask-eq">for 23% equity · $2.5M pre-money valuation</div>
+          <div class="ask-use">
+            <div class="au-row"><div class="au-dot"></div><div class="au-text">Microfilament manufacturing (outsourced)</div></div>
+            <div class="au-row"><div class="au-dot"></div><div class="au-text">Electronic components & ASIC development</div></div>
+            <div class="au-row"><div class="au-dot"></div><div class="au-text">RenalSense app development (iOS + Android)</div></div>
+            <div class="au-row"><div class="au-dot"></div><div class="au-text">Lab space, bench trials & calibration curve generation</div></div>
+            <div class="au-row"><div class="au-dot"></div><div class="au-text">IP filing & regulatory pre-consultation</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal d2">
+        <div class="inv-form">
+          <div class="iff-title">Request investor materials</div>
+          <div class="iff-sub">We'll follow up within 48 hours with our full deck and data room.</div>
+          <!-- EDIT: see form connection instructions below -->
+          <form onsubmit="handleForm(event)">
+            <div class="f-row-2">
+              <div class="f-row"><input class="f-field" type="text" placeholder="First name" required/></div>
+              <div class="f-row"><input class="f-field" type="text" placeholder="Last name" required/></div>
+            </div>
+            <div class="f-row"><input class="f-field" type="email" placeholder="Work email" required/></div>
+            <div class="f-row"><input class="f-field" type="text" placeholder="Firm / Organization"/></div>
+            <div class="f-row">
+              <select class="f-field" style="color:rgba(255,255,255,.3);">
+                <option value="" disabled selected>Interest area</option>
+                <option style="color:#000;">Seed investor</option>
+                <option style="color:#000;">Strategic / corporate VC</option>
+                <option style="color:#000;">Medtech angel</option>
+                <option style="color:#000;">Clinical partnership</option>
+                <option style="color:#000;">Press / media</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-blue btn-lg" style="width:100%;justify-content:center;margin-top:4px;">Request Materials</button>
+            <p class="f-note">Your information is kept strictly confidential.</p>
+            <p class="f-success" id="form-ok">✓ Received — Evan will be in touch within 48 hours.</p>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="inv-bottom reveal">
+      <div class="inv-links">
+        <!-- EDIT: replace with real contact details -->
+        <a href="tel:9736186347" class="inv-link">(973) 618-6347</a>
+        <a href="mailto:evan@dreamkatcher.com" class="inv-link">evan@dreamkatcher.com</a>
+        <a href="https://linkedin.com" class="inv-link" target="_blank">LinkedIn</a>
+      </div>
+      <div class="inv-copy">© 2025 Dream K⁺atcher · [Company Name] · Seed Stage</div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+  // Navbar scroll shadow
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 16));
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible'));
+
+  // Form handler
+  // ─────────────────────────────────────────────────────────────────
+  // TO WIRE UP REAL FORM SUBMISSIONS (Formspree — free, takes 2 min):
+  // 1. Go to formspree.io → sign up → New Form → copy your Form ID
+  // 2. Replace the function below with:
+  //
+  //   async function handleForm(e) {
+  //     e.preventDefault();
+  //     const data = Object.fromEntries(new FormData(e.target));
+  //     await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(data)
+  //     });
+  //     document.getElementById('form-ok').style.display = 'block';
+  //   }
+  // ─────────────────────────────────────────────────────────────────
+  function handleForm(e) {
+    e.preventDefault();
+    document.getElementById('form-ok').style.display = 'block';
+    e.target.querySelectorAll('.f-field').forEach(f => f.disabled = true);
+    const btn = e.target.querySelector('.btn-blue');
+    btn.disabled = true; btn.textContent = 'Sent ✓';
+  }
+</script>
+
+</body>
+</html>
